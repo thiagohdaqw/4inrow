@@ -51,7 +51,8 @@ initGui(P):-
     send(D, display, P, point(0, 0)),
     send(P,width(500)),
     send(P,height(500)),
-    send(D, open).
+    send(D, open),
+    drawGrid(P).
 
 :-  dynamic(grid/2),
     initGui(P),
