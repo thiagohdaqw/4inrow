@@ -31,16 +31,25 @@ clear :- drawChar('\n',80).
 dropColumn(Row,[]) :- Row is 9.
 dropColumn(Row,Column) :- last(Column,C), Row is C-1.
 
-drop(Column,Row) :- findall(Y,grid(Column,Y), C), dropColumn(Row,C).
+drop(Column,Row) :- findall(Y,grid(Column,Y,_), C), dropColumn(Row,C).
 
+
+checkHorizontal(Col,_,_,_) :- Col > 9, !, fail.
+checkHorizontal(_,_,_,Count) :- Count == 4, !, write('Ganhou Horizontal!'), nl.
+checkHorizontal(Col,Row,Turn,Count) :- not(grid(Col,Row,Turn)), !, plus(Col,1,CC), checkHorizontal(CC,Row,Turn,0).
+checkHorizontal(Col,Row,Turn,Count) :- plus(Count,1,RS), plus(Col,1,CC), checkHorizontal(CC,Row,Turn,RS).
+
+checkWinMove(Col,Row,Turn) :- 
+    checkHorizontal(0,Row,Turn,0).
 
 main(Turn,P) :- clear,
                 write('Player['),write(Turn),write('] - Informe a coluna: '),
                 read(X),
                 Column is X-1,
                 drop(Column,Row),
-                assert(grid(Column,Row)),
+                assert(grid(Column,Row,Turn)),
                 drawPlayer(Turn,Column,Row,P),
+                not(checkWinMove(Column,Row,Turn)), !,
                 T is (Turn+1) mod 2,
                 main(T,P).
 
@@ -54,6 +63,7 @@ initGui(P):-
     send(D, open),
     drawGrid(P).
 
-:-  dynamic(grid/2),
+
+:-  dynamic(grid/3),
     initGui(P),
     main(0,P).
