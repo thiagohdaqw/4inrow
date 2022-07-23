@@ -44,10 +44,24 @@ checkVertical(_,_,_,Count) :- Count == 4, !, write('Ganhou Vertical!'), nl.
 checkVertical(Col,Row,Turn,Count) :- not(grid(Col,Row,Turn)), !, plus(Row,-1,RR), checkVertical(Col,RR,Turn,0).
 checkVertical(Col,Row,Turn,Count) :- plus(Count,1,RS), plus(Row,-1,RR), checkVertical(Col,RR,Turn,RS).
 
+check(Col,Row,X,Y,Turn) :- plus(Col,X,CC),plus(Row,Y,RR),grid(CC,RR,Turn).
+
+checkDiagonalLeft(_,_,_,_,Step) :- Step > 4, !, fail.
+checkDiagonalLeft(_,_,_,Count,_) :- Count == 4, !, write('Ganhou Diagonal Esquerda'), nl.
+checkDiagonalLeft(Col,Row,Turn,Count,Step) :- not(check(Col,Row,Step,Step,Turn)), !, plus(Step,1,SS), checkDiagonalLeft(Col,Row,Turn,0,SS).
+checkDiagonalLeft(Col,Row,Turn,Count,Step) :- plus(Count,1,RS), plus(Step,1,SS), checkDiagonalLeft(Col,Row,Turn,RS,SS).
+
+checkDiagonalRight(_,_,_,_,X,_) :- X > 4, !, fail.
+checkDiagonalRight(_,_,_,Count,_,_) :- Count == 4, !, write('Ganhou Diagonal Direita'), nl.
+checkDiagonalRight(Col,Row,Turn,_,X,Y) :- not(check(Col,Row,X,Y,Turn)), !, plus(X,1,XX), plus(Y,-1,YY), checkDiagonalRight(Col,Row,Turn,0,XX,YY).
+checkDiagonalRight(Col,Row,Turn,Count,X,Y) :- plus(Count,1,RS), plus(X,1,XX), plus(Y,-1,YY), checkDiagonalRight(Col,Row,Turn,RS,XX,YY).
 
 checkWinMove(Col,Row,Turn) :- 
     checkHorizontal(0,Row,Turn,0)
-    ; checkVertical(Col,9,Turn,0).
+    ; checkVertical(Col,9,Turn,0)
+    ; checkDiagonalLeft(Col,Row,Turn,0,-4)
+    ; checkDiagonalLeft(Col,Row,Turn,0,-4)
+    ; checkDiagonalRight(Col,Row,Turn,0,-4,4).
 
 main(Turn,P) :- clear,
                 write('Player['),write(Turn),write('] - Informe a coluna: '),
@@ -73,4 +87,6 @@ initGui(P):-
 
 :-  dynamic(grid/3),
     initGui(P),
-    main(0,P).
+    not(main(0,P)),
+    drawChar('\n',5),
+    drawChar('=',40).
