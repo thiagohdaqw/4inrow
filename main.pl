@@ -31,7 +31,7 @@ clear :- drawChar('\n',80).
 dropColumn(Row,[]) :- Row is 9.
 dropColumn(Row,Column) :- last(Column,C), Row is C-1.
 
-drop(Column,Row) :- findall(Y,grid(Column,Y,_), C), dropColumn(Row,C).
+drop(Column,Row) :- findall(Y,grid(Column,Y,_), C),dropColumn(Row,C).
 
 
 checkHorizontal(Col,_,_,_) :- Col > 9, !, fail.
@@ -39,8 +39,15 @@ checkHorizontal(_,_,_,Count) :- Count == 4, !, write('Ganhou Horizontal!'), nl.
 checkHorizontal(Col,Row,Turn,Count) :- not(grid(Col,Row,Turn)), !, plus(Col,1,CC), checkHorizontal(CC,Row,Turn,0).
 checkHorizontal(Col,Row,Turn,Count) :- plus(Count,1,RS), plus(Col,1,CC), checkHorizontal(CC,Row,Turn,RS).
 
+checkVertical(_,Row,_,_) :- Row < 0, !, fail.
+checkVertical(_,_,_,Count) :- Count == 4, !, write('Ganhou Vertical!'), nl.
+checkVertical(Col,Row,Turn,Count) :- not(grid(Col,Row,Turn)), !, plus(Row,-1,RR), checkVertical(Col,RR,Turn,0).
+checkVertical(Col,Row,Turn,Count) :- plus(Count,1,RS), plus(Row,-1,RR), checkVertical(Col,RR,Turn,RS).
+
+
 checkWinMove(Col,Row,Turn) :- 
-    checkHorizontal(0,Row,Turn,0).
+    checkHorizontal(0,Row,Turn,0)
+    ; checkVertical(Col,9,Turn,0).
 
 main(Turn,P) :- clear,
                 write('Player['),write(Turn),write('] - Informe a coluna: '),
